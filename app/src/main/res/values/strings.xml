@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">SpeedTest</string>
+
+    <string-array name="methods">
+        <item>Ookla</item>
+        <item>SpeedOfMe</item>
+        <item>SaveDataMethod</item>
+    </string-array>
 </resources>
