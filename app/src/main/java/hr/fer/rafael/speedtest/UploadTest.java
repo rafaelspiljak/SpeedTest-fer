@@ -93,7 +93,7 @@ public class UploadTest extends  Thread{
     @Override
     public void run() {
         try{
-            int bufferSize=32000;
+            int bufferSize=64000;
             byte[] buff=new byte[bufferSize];
 
 
@@ -146,8 +146,12 @@ public class UploadTest extends  Thread{
                     finished = true;
             }else if(method==1){
                     int startSize=64000;
+                    LinkedList<Long> startTimes=new LinkedList<>();
+                    LinkedList<Long> endTimes=new LinkedList<>();
                     c:
                     while(true) {
+                        startTime = System.currentTimeMillis();
+                        startTimes.add(startTime);
                         clientSocket = new Socket("46.101.104.253", 8080);
                         PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
                         BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
@@ -157,7 +161,7 @@ public class UploadTest extends  Thread{
 
                         out.println(startSize);
                         String s = "pocni";
-                        long startTime = System.currentTimeMillis();
+
                         int i = 0;
 
                         long sizeOfReadData = 0;
@@ -194,10 +198,13 @@ public class UploadTest extends  Thread{
 
 
                         clientSocket.close();
+                        endTime=System.currentTimeMillis();
+                        endTimes.add(endTime);
                         System.out.println(
                                 "Odspojen"
                         );
                         if(System.currentTimeMillis()-startTime<8000){
+                            System.out.println(System.currentTimeMillis()-startTime);
                             Thread.sleep(500);
                             startSize*=2;
                         }else{
@@ -205,10 +212,15 @@ public class UploadTest extends  Thread{
                         }
 
                     }
-                    finalUploadRate = speeds.getLast();
+
+                    endTime=System.currentTimeMillis();
+                    finalUploadRate = 0.008*startSize/(endTimes.getLast()-startTimes.getLast());
+                    System.out.println("endtime brzina:"+finalUploadRate);
+                    if(instantUploadRate>finalUploadRate)finalUploadRate=instantUploadRate;
+                    //finalUploadRate=instantUploadRate;
                     System.out.println(finalUploadRate);
                     System.out.println(startSize+" : start size");
-                    System.out.println("time : "+(endTime-startTime));
+                    System.out.println("time : "+endTime+" "+startTime+ " "+startTimes.getLast());
                     finished = true;
 
             }else if(method==2){
@@ -220,9 +232,9 @@ public class UploadTest extends  Thread{
                     is.read(buff,0,bufferSize);
 
                     String s = "pocni";
-
+                    long outerStartTime=System.currentTimeMillis();
                     int i = 0;
-
+                    long startTime;
                     long sizeOfReadData = 0;
                     long endTime = 0;
                     s = "pocni";
@@ -232,7 +244,7 @@ public class UploadTest extends  Thread{
                         is.read(buff, 0, bufferSize);
                         a:
                         while (!s.equals("stop")) {
-
+                            startTime=System.currentTimeMillis();
                             s = in.readLine();
 
                             if (s.equals("stop")) break a;
@@ -246,17 +258,20 @@ public class UploadTest extends  Thread{
 
                             dos.write(buff, 0, bufferSize);
                             dos.flush();
+                            endTime=System.currentTimeMillis();
+                            //instantUploadRate=0.008*bufferSize/(endTime-startTime);
                         }
                         System.out.println("sendToSocket");
 
                     } catch (Exception e) {
-                        
+
                     }
 
                     System.out.println("izasao");
 
-                    finalUploadRate = FastCom(speeds);
+
                     clientSocket.close();
+                    finalUploadRate = 0.008*12000000/(System.currentTimeMillis()-outerStartTime);
                     System.out.println(
                             "Odspojen"
                     );
@@ -287,6 +302,7 @@ public class UploadTest extends  Thread{
         LinkedList<Double> newList=new LinkedList<>();
 
         int i=0;
+
         for(double speed:speeds){
             if(sum!=Double.NaN){
                 sum+=speed;

@@ -126,7 +126,7 @@ public class MainActivity extends AppCompatActivity {
                         runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                               // centralView.setText(String.format("%.0f",ping.getInstantPing())+" ms");
+                                // centralView.setText(String.format("%.0f",ping.getInstantPing())+" ms");
                             }
                         });
                     }
@@ -261,5 +261,3 @@ public class MainActivity extends AppCompatActivity {
 
 
 }
-
-

@@ -108,6 +108,7 @@ public class DownloadTest extends Thread{
                 long innerStartTime=0;
                 long innerEndTime=0;
                 long downloadTime=0;
+                downloadedByte=0;
                 PrintWriter out=new PrintWriter(clientSocket.getOutputStream(),true);
                 out.println("0");
                 BufferedInputStream bis=new BufferedInputStream(clientSocket.getInputStream());
@@ -127,7 +128,7 @@ public class DownloadTest extends Thread{
                     instantDownloadRate=downloadedByte/downloadTime*0.008;
                     System.out.println("instant: "+instantDownloadRate);
                     speeds.add(instantDownloadRate);
-                    System.out.println("instant:"+instantDownloadRate);
+                    //System.out.println("instant:"+instantDownloadRate);
                 }
                 out.println("stop");
                 endTime=System.currentTimeMillis();
@@ -142,40 +143,50 @@ public class DownloadTest extends Thread{
 
         }else if (getMethod()==1){
             try{
-                int dataSize=64000;
+                int dataSize=128000;
                 long downloadSize=0;
                 long fullDownloadTime=0;
+                double lastDownload;
                 a:
                 while(true) {
+                    downloadedByte=0;
                     clientSocket = new Socket(hostName, portNumber);
                     PrintWriter out = new PrintWriter(clientSocket.getOutputStream(), true);
                     out.println("0");
                     long outerStartTime=System.currentTimeMillis();
                     BufferedInputStream bis = new BufferedInputStream(clientSocket.getInputStream());
                     BufferedReader in = new BufferedReader(new InputStreamReader(clientSocket.getInputStream()));
-                    int bufferSize = 32000;
+                    int bufferSize = 128000;
                     byte[] buff = new byte[bufferSize];
                     startTime = System.currentTimeMillis();
                     long innerStartTime=0;
                     long innerEndTime=0;
                     long downloadTime=0;
+                    long currentByte=0;
                     while (downloadedByte <dataSize) {
+
                         out.println(downloadedByte);
-                        System.out.println("skinuto " + getDownloadedByte());
                         innerStartTime=System.currentTimeMillis();
-                        downloadedByte += bis.read(buff, 0, bufferSize);
+                        System.out.println("skinuto "+getDownloadedByte());
+                        currentByte=bis.read(buff,0,bufferSize);
                         innerEndTime=System.currentTimeMillis();
-                        downloadTime+=innerEndTime-innerStartTime;
-                        instantDownloadRate = downloadedByte / (System.currentTimeMillis()-startTime) * 0.008;
+                        downloadedByte+=currentByte;
+                        downloadTime+=(innerEndTime-innerStartTime);
+                        instantDownloadRate=downloadedByte/downloadTime*0.008;
+                        System.out.println("instant: "+instantDownloadRate);
                         speeds.add(instantDownloadRate);
-                        System.out.println("instant:" + instantDownloadRate);
+                        System.out.println("instant:"+instantDownloadRate);
+
                     }
                     endTime = System.currentTimeMillis();
                     downloadSize=downloadedByte;
                     fullDownloadTime=downloadTime;
+                    lastDownload=instantDownloadRate;
                     out.println("stop");
                     if(endTime-startTime<8000){
+                        if(dataSize>128000000)break a;
                         dataSize*=2;
+
 
                     }else{
                         break a;
@@ -184,7 +195,8 @@ public class DownloadTest extends Thread{
                     clientSocket.close();
                     Thread.sleep(500);
                 }
-                finalDownloadRate=downloadSize/fullDownloadTime*0.008;
+                //finalDownloadRate=downloadSize/fullDownloadTime*0.008;
+                finalDownloadRate=lastDownload;
                 System.out.println("Gotovo");
                 wait=false;
                 finished=true;
@@ -200,6 +212,7 @@ public class DownloadTest extends Thread{
                 long innerStartTime=0;
                 long innerEndTime=0;
                 long downloadTime=0;
+                downloadedByte=0;
                 PrintWriter out=new PrintWriter(clientSocket.getOutputStream(),true);
                 out.println("0");
                 BufferedInputStream bis=new BufferedInputStream(clientSocket.getInputStream());
