@@ -107,7 +107,7 @@ public class MainActivity extends AppCompatActivity {
                         method=0;
                     }else if(methodChosen.equals("SpeedOfMe")){
                         method=1;
-                    }else if(methodChosen.equals("SaveDataMethod")){
+                    }else if(methodChosen.equals("Fast")){
                         method=2;
                     }
                     final DownloadTest download=new DownloadTest(method);
@@ -120,118 +120,104 @@ public class MainActivity extends AppCompatActivity {
                     boolean downloadFinished=false;
                     boolean uploadFinished=false;
 
-                    while(true){
-                        if(!pingStarted&&!downloadStarted&&!uploadStarted){
-                            ping.start();
-                            pingStarted=true;
-                        }
-                        if(pingFinished&&!downloadStarted&!uploadStarted){
-                            download.start();
-                            downloadStarted=true;
-                        }
-                        if(pingFinished&&downloadFinished&&!uploadStarted){
-                            //upload.start();
-                            uploadStarted=true;
-                        }
-
-                        /*pingtest*/
-                        if (pingStarted) {
-                            if(ping.averagePing==0.0){
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        //Toast.makeText(getApplicationContext(),"Server is not available",Toast.LENGTH_SHORT);
-
-                                    }
-                                });
-                            }else{
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        pingView.setText(String.format("%.0f",ping.getAveragePing())+" ms");
-                                    }
-                                });
+                    ping.start();
+                    pingStarted=true;
+                    while(!ping.isFinished()){
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                               // centralView.setText(String.format("%.0f",ping.getInstantPing())+" ms");
                             }
-                        }else{
-                            centralView.setText(String.format("%.0f",ping.getInstantPing())+" ms");
-                        }
-                        /*downloadtest*/
-                        if(pingFinished&&!uploadFinished){
-                            System.out.println(download.finalDownloadRate);
-                            if (downloadFinished&&!uploadFinished){
-                                if (download.getFinalDownloadRate()==0.0){
-                                    System.out.println("Error while downloading");
-                                }else{
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            downloadView.setText(String.format("%.2f",download.getFinalDownloadRate())+" Mbps");
-                                        }
-                                    });
-                                }
-                            }else{
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        centralView.setText(String.format("%.2f",download.getInstantDownloadRate())+" Mbps");
-                                    }
-                                });
+                        });
+                    }
+                    if(ping.isFinished()) {
+                        pingFinished=true;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                pingView.setText(String.format("%.0f", ping.averagePing) + " ms");
                             }
-
-                        }
-
-                        if(pingFinished&&downloadFinished){
-                            if(uploadFinished){
-                                if(upload.getFinalUploadRate()==0){
-                                    System.out.println("Upload error");
-                                }else{
-                                    runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            uploadView.setText(String.format("%.2f",upload.getFinalUploadRate())+" Mbps");
-                                        }
-                                    });
-                                }
-                                }else{
-                                runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        centralView.setText(String.format("%.2f",upload.getInstantUploadRate())+" Mbps");
-                                    }
-                                });
-                            }
-                            }
-
-                        if(pingFinished&&downloadFinished){
-                            break;
-                        }
-                        if(ping.isFinished()&&!downloadFinished&&!uploadFinished){
-
-
-
-                                pingFinished=true;
-
-                        }
-                        if(download.isFinished()&&pingFinished&&!uploadFinished){
-
-                            try{
-                                Thread.sleep(2000);
-                                downloadFinished=true;
-                            }catch (Exception e){
+                        });
+                    }
+                    if(pingFinished){
+                        ping.join();
+                        Thread.sleep(200);
+                        downloadStarted=true;
+                        download.start();
+                    }
+                    while(!download.isFinished()){
+                        Thread.sleep(100);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                centralView.setText(String.format("%.2f",download.instantDownloadRate)+" Mbps");
 
                             }
-                        }
-                        /*if(upload.isFinished()&&pingFinished&&downloadFinished){
+                        });
+                    }
+                    if(download.isFinished()) {
+                        downloadFinished=true;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                centralView.setText(String.format("Upload"));
 
-                            try{
-                                Thread.sleep(4000);
-                                uploadFinished=true;
-                            }catch(Exception e){
+                                downloadView.setText(String.format("%.2f", download.finalDownloadRate) + " Mbps");
+                            }
+                        });
+                    }
+                    if(pingFinished&&downloadFinished){
+                        System.out.println("Ping i download gotovi");
+                        download.join();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                downloadView.setText(String.format("%.2f", download.finalDownloadRate) + " Mbps");
+                            }
+                        });
+                        System.out.println(ping.averagePing+" "+download.finalDownloadRate);
+                        System.out.println("vrijeme"+System.currentTimeMillis());
+                        Thread.sleep(250);
+                    }
+                    System.out.println("vrijeme"+System.currentTimeMillis());
+                    Thread.sleep(250);
+                    System.out.println("vrijeme"+System.currentTimeMillis());
+                    download.join();
+                    upload.start();
+                    while(!upload.isFinished()){
+                        Thread.sleep(100);
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                centralView.setText(String.format("%.2f",upload.instantUploadRate)+" Mbps");
 
                             }
-                        }*/
+                        });
                     }
 
+                    if(upload.isFinished()) {
+                        uploadFinished=true;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                centralView.setText(String.format("Upload"));
+                                uploadView.setText(String.format("%.2f", upload.finalUploadRate) + " Mbps");
+                            }
+                        });
+                    }
+                    if(pingFinished&&downloadFinished&&uploadFinished){
+                        System.out.println("Ping i download gotovi i upload");
+                        upload.join();
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                uploadView.setText(String.format("%.2f", upload.finalUploadRate) + " Mbps");
+                            }
+                        });
+                        System.out.println(ping.averagePing+" "+download.finalDownloadRate+" "+upload.finalUploadRate);
+                        System.out.println("vrijeme"+System.currentTimeMillis());
+                        //Thread.sleep(5000);
+                    }
 
                 }catch(Exception e){
                     e.printStackTrace();

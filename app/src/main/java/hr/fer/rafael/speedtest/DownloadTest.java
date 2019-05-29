@@ -166,7 +166,7 @@ public class DownloadTest extends Thread{
                         downloadedByte += bis.read(buff, 0, bufferSize);
                         innerEndTime=System.currentTimeMillis();
                         downloadTime+=innerEndTime-innerStartTime;
-                        instantDownloadRate = downloadedByte / downloadTime * 0.008;
+                        instantDownloadRate = downloadedByte / (System.currentTimeMillis()-startTime) * 0.008;
                         speeds.add(instantDownloadRate);
                         System.out.println("instant:" + instantDownloadRate);
                     }
