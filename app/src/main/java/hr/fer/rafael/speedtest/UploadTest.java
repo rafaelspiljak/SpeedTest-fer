@@ -133,7 +133,7 @@ public class UploadTest extends  Thread{
                         System.out.println("sendToSocket");
 
                     } catch (Exception e) {
-                        // TODO: handle exception
+
                     }
 
                     System.out.println("izasao");
@@ -187,7 +187,7 @@ public class UploadTest extends  Thread{
                             System.out.println("sendToSocket");
 
                         } catch (Exception e) {
-                            // TODO: handle exception
+
                         }
 
                         System.out.println("izasao");
@@ -250,7 +250,7 @@ public class UploadTest extends  Thread{
                         System.out.println("sendToSocket");
 
                     } catch (Exception e) {
-                        // TODO: handle exception
+                        
                     }
 
                     System.out.println("izasao");
